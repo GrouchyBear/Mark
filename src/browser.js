@@ -51,12 +51,12 @@ onload = function(){
         var findMatchCase = false;
 
         document.querySelector('#zoom').onclick = function() {
-          if(document.querySelector('#zoom-box'.style.display == '-webkit-flex'){
-            closeZoomBox();
-          } else {
-            openZoomBox();
-          }
-        };
+      if(document.querySelector('#zoom-box').style.display == '-webkit-flex') {
+        closeZoomBox();
+      } else {
+        openZoomBox();
+      }
+    };
 
         document.querySelector('#zoom-form').onsubmit = function(e) {
           e.preventDefault();

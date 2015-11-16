@@ -1,7 +1,7 @@
-window.onresize = document;
+window.onresize = doLayout;
 var isLoading = false;
 
-onload = function(){
+onload = function() {
   var webview = document.querySelector('webview');
   doLayout();
 
@@ -14,7 +14,7 @@ onload = function(){
   };
 
   document.querySelector('#home').onclick = function() {
-    navigateTo('http://github.com/grouchybear/');
+    navigateTo('http://www.github.com/');
   };
 
   document.querySelector('#reload').onclick = function() {
@@ -24,10 +24,9 @@ onload = function(){
       webview.reload();
     }
   };
-
   document.querySelector('#reload').addEventListener(
-    'webkitAnimationIternation',
-    function(){
+    'webkitAnimationIteration',
+    function() {
       if (!isLoading) {
         document.body.classList.remove('loading');
       }
@@ -42,15 +41,15 @@ onload = function(){
   webview.addEventListener('did-start-loading', handleLoadStart);
   webview.addEventListener('did-stop-loading', handleLoadStop);
   webview.addEventListener('did-fail-load', handleLoadAbort);
-  webview.addEventListener('did-getredirect-request', handleLoadRedirect);
+  webview.addEventListener('did-get-redirect-request', handleLoadRedirect);
   webview.addEventListener('did-finish-load', handleLoadCommit);
 
-  // Test for presence of experimental <webview> zoom and find APIs.
+  // Test for the presence of the experimental <webview> zoom and find APIs.
   if (typeof(webview.setZoom) == "function" &&
       typeof(webview.find) == "function") {
-        var findMatchCase = false;
+    var findMatchCase = false;
 
-        document.querySelector('#zoom').onclick = function() {
+    document.querySelector('#zoom').onclick = function() {
       if(document.querySelector('#zoom-box').style.display == '-webkit-flex') {
         closeZoomBox();
       } else {
@@ -58,57 +57,68 @@ onload = function(){
       }
     };
 
-        document.querySelector('#zoom-form').onsubmit = function(e) {
-          e.preventDefault();
-          var zoomText = document.forms['zoom-form']['zoom-text'];
-          var zoomFactor = Number(zoomText.value);
-          if (zoomFactor > 5) {
-            zoomText.value = "0.25";
-            zoomFactor = 0.25;
-          }
-          webview.setZoom(zoomFactor);
-        }
+    document.querySelector('#zoom-form').onsubmit = function(e) {
+      e.preventDefault();
+      var zoomText = document.forms['zoom-form']['zoom-text'];
+      var zoomFactor = Number(zoomText.value);
+      if (zoomFactor > 5) {
+        zoomText.value = "5";
+        zoomFactor = 5;
+      } else if (zoomFactor < 0.25) {
+        zoomText.value = "0.25";
+        zoomFactor = 0.25;
+      }
+      webview.setZoom(zoomFactor);
+    }
 
-        document.querySelector('#zoom-in').onclick = function(e) {
-          e.preventDefault();
-          increaseZoom();
-        }
+    document.querySelector('#zoom-in').onclick = function(e) {
+      e.preventDefault();
+      increaseZoom();
+    }
 
-        document.querySelector('#zoom-out').onclick = function(e) {
-          e.preventDefault();
-          decreaseZoom();
-        }
+    document.querySelector('#zoom-out').onclick = function(e) {
+      e.preventDefault();
+      decreaseZoom();
+    }
 
-        document.querySelector('#find').onclick = function() {
-          if(document.querySelector('#find-box').style.display == 'block') {
-            document.querySelector('webview').stopFinding();
-            closeFindBox();
-          } else {
-            openFindBox();
-          }
-        };
+    document.querySelector('#find').onclick = function() {
+      if(document.querySelector('#find-box').style.display == 'block') {
+        document.querySelector('webview').stopFinding();
+        closeFindBox();
+      } else {
+        openFindBox();
+      }
+    };
 
-        document.querySelector('#find-text').oninput = function(e) {
-          webview.find(document.forms['find-form']['find-text'].value,
-                        {matchCase: findMatchCase});
-        }
+    document.querySelector('#find-text').oninput = function(e) {
+      webview.find(document.forms['find-form']['find-text'].value,
+                   {matchCase: findMatchCase});
+    }
 
-        document.querySelector('#find-text').onkeydown = function(e) {
-          e.preventDefault();
-          findMatchCase = !findMatchCase;
-          var matchCase = document.querySelector('#match-case');
-          if(matchCase){
-            matchCase.style.color = "blue";
-            matchCase.style['font-weight'] = "bold";
-          } else {
-            matchCase.style.color = "black";
-            matchCase.style['font-weight'] = "";
-          }
-          webview.find(document.forms['find-form']['find-text'].value,
-                        {matchCase: findMatchCase});
-        }
+    document.querySelector('#find-text').onkeydown = function(e) {
+      if (event.ctrlKey && event.keyCode == 13) {
+        e.preventDefault();
+        webview.stopFinding('activate');
+        closeFindBox();
+      }
+    }
 
-        document.querySelector('#find-backward').onclick = function(e) {
+    document.querySelector('#match-case').onclick = function(e) {
+      e.preventDefault();
+      findMatchCase = !findMatchCase;
+      var matchCase = document.querySelector('#match-case');
+      if (findMatchCase) {
+        matchCase.style.color = "blue";
+        matchCase.style['font-weight'] = "bold";
+      } else {
+        matchCase.style.color = "black";
+        matchCase.style['font-weight'] = "";
+      }
+      webview.find(document.forms['find-form']['find-text'].value,
+                   {matchCase: findMatchCase});
+    }
+
+    document.querySelector('#find-backward').onclick = function(e) {
       e.preventDefault();
       webview.find(document.forms['find-form']['find-text'].value,
                    {backward: true, matchCase: findMatchCase});
